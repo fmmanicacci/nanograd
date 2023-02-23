@@ -30,10 +30,11 @@ class Scalar:
         """Provide a string representation of the object."""
         label_str = "" if self.label is None else f"label={self.label}, "
         data_str = f"data={self.data:.6f}"
+        req_grad_str = "" if not self.requires_grad else f", requires_grad={self.requires_grad}"
         grad_str = "" if not self.requires_grad else f", grad={self._grad:.6f}"
         op_str = "" if self._op is Operation.NONE else f", op={self._op.value}"
         prev_str = "" if self._op is Operation.NONE else f", prev={len(self._prev)}"
-        return f"Scalar({label_str}{data_str}{grad_str}{op_str}{prev_str})"
+        return f"Scalar({label_str}{data_str}{req_grad_str}{grad_str}{op_str}{prev_str})"
         
     def __repr__(self) -> str:
         """Provide an information-rich string representation of the object."""
