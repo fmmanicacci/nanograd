@@ -56,6 +56,12 @@ class Scalar:
         # Otherwise, we set it to 0.0 so that the gradient is not computed.
         self._backward = 1.0 if requires_grad else 0.0
 
+    def add(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+        """Addition operator."""
+        out = self + other
+        out.label = label
+        return out
+
     def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """Addition operator."""
         # Check that the type of the argument is supported and cast it to a Scalar if necessary.
