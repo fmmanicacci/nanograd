@@ -34,7 +34,7 @@ class Scalar:
         return f"Value({label_str}{data_str}{grad_str}{op_str}{prev_str})"
         
     def __repr__(self) -> str:
-        """Provide a rich an information-rich string representation of the object."""
+        """Provide an information-rich string representation of the object."""
         ...
 
 
