@@ -1,5 +1,7 @@
 """Definition of the Scalar object."""
 
+from typing import Union
+
 from .enums import Operation
 
 class Scalar:
@@ -25,7 +27,13 @@ class Scalar:
         self._prev = set() if _prev is None else _prev
         self._op = _op
         self.backward_fn = lambda: None
-        
+
+    @staticmethod
+    def supported_type(x: Union[int, float, 'Scalar']) -> None:
+        """Check that the type of the argument `x` is supported."""
+        if not isinstance(x, (Scalar, int, float)):
+            raise TypeError(f"The following type {type(x)} is not supported.")
+
     def __str__(self) -> str:
         """Provide a string representation of the object."""
         label_str = "" if self.label is None else f"label={self.label}, "
