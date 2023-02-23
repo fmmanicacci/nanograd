@@ -7,39 +7,39 @@ from nanograd.enums import Operation
 def test__add__int() -> None:
     """Test that the addition operator works when the argument is an int."""
     x = Scalar(1.0, requires_grad=True)
-    y = x + 1
-    other = (y._prev - {x}).pop()
+    z = x + 1
+    y = (z._prev - {x}).pop()
     # Check that the output is correct.
-    assert y.data == 2.0
-    assert y.requires_grad
-    assert y._op == Operation.ADDITION
+    assert z.data == 2.0
+    assert z.requires_grad
+    assert z._op == Operation.ADDITION
     # Check that the children of the output are correct.
-    assert len(y._prev) == 2
-    assert x in y._prev
-    assert other.data == 1
-    assert not other.requires_grad
-    assert other._op == Operation.NONE
-    assert len(other._prev) == 0
-    assert other.label == None
+    assert len(z._prev) == 2
+    assert x in z._prev
+    assert y.data == 1
+    assert not y.requires_grad
+    assert y._op == Operation.NONE
+    assert len(y._prev) == 0
+    assert y.label == None
 
 
 def test__add__float() -> None:
     """Test that the addition operator works when the argument is a float."""
     x = Scalar(1.0, requires_grad=True)
-    y = x + 1.0
-    other = (y._prev - {x}).pop()
+    z = x + 1.0
+    y = (z._prev - {x}).pop()
     # Check that the output is correct.
-    assert y.data == 2.0
-    assert y.requires_grad
-    assert y._op == Operation.ADDITION
+    assert z.data == 2.0
+    assert z.requires_grad
+    assert z._op == Operation.ADDITION
     # Check that the children of the output are correct.
-    assert len(y._prev) == 2
-    assert x in y._prev
-    assert other.data == 1.0
-    assert not other.requires_grad
-    assert other._op == Operation.NONE
-    assert len(other._prev) == 0
-    assert other.label == None
+    assert len(z._prev) == 2
+    assert x in z._prev
+    assert y.data == 1.0
+    assert not y.requires_grad
+    assert y._op == Operation.NONE
+    assert len(y._prev) == 0
+    assert y.label == None
 
 
 def test__add__scalar() -> None:
