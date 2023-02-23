@@ -75,6 +75,11 @@ class Scalar:
         out._backward_fn = _backward_fn
         return out
 
+    def __radd__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Right addition operator."""
+        # Addition is commutative, so we can use the __add__ method.
+        return self + other
+
     def __str__(self) -> str:
         """Provide a string representation of the object."""
         label_str = "" if self.label is None else f"label={self.label}, "
