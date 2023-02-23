@@ -34,6 +34,19 @@ class Scalar:
         if not isinstance(x, (Scalar, int, float)):
             raise TypeError(f"The following type {type(x)} is not supported.")
 
+    @staticmethod
+    def as_scalar(
+        x: int | float,
+        label: str | None = None,
+        requires_grad: bool = False
+    ) -> 'Scalar':
+        """Return the argument `x` as a Scalar if it is possible."""
+        Scalar.supported_type(x)
+        if isinstance(x, Scalar):
+            return x
+        elif isinstance(x, (int, float)):
+            return Scalar(x, label=label, requires_grad=requires_grad)
+
     def __str__(self) -> str:
         """Provide a string representation of the object."""
         label_str = "" if self.label is None else f"label={self.label}, "
