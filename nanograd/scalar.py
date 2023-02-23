@@ -26,7 +26,9 @@ class Scalar:
         self._grad = 0.0
         self._prev = set() if _prev is None else _prev
         self._op = _op
-        self.backward_fn = lambda: None
+        self._backward_fn = lambda: None
+        self._backward = 0.0
+        self.requires_grad_(requires_grad)
 
     @staticmethod
     def supported_type(x: Union[int, float, 'Scalar']) -> None:
@@ -46,6 +48,14 @@ class Scalar:
             return x
         elif isinstance(x, (int, float)):
             return Scalar(x, label=label, requires_grad=requires_grad)
+
+    def requires_grad_(self, requires_grad: bool) -> None:
+        """Set the `requires_grad` attribute of the object."""
+        self.requires_grad = requires_grad
+        # If the object requires gradient, we need to set the `_backward` attribute to 1.0
+        # so that the gradient is computed during the backward phase.
+        # Otherwise, we set it to 0.0 so that the gradient is not computed.
+        self._backward = 1.0 if requires_grad else 0.0
 
     def __str__(self) -> str:
         """Provide a string representation of the object."""
