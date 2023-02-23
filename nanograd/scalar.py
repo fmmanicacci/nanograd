@@ -37,3 +37,13 @@ class Scalar:
         
     def __repr__(self) -> str:
         """Provide an information-rich string representation of the object."""
+        start_str = "Scalar\n"
+        label_str = f"{' ':3}label         : {self.label}\n"
+        data_str = f"{' ':3}data          : {self.data:.6f}\n"
+        requires_grad_str = f"{' ':3}requires_grad : {self.requires_grad}\n"
+        grad_str = f"{' ':3}grad          : {self._grad:.6f}\n"
+        op_str = f"{' ':3}op            : {self._op.value}\n"
+        children_str = ''.join([f"\n{' ':6}{child}" for child in self._prev]) if len(self._prev) > 0 else "None"
+        prev_str = f"{' ':3}prev          : {children_str}"
+
+        return f"{start_str}{label_str}{data_str}{requires_grad_str}{grad_str}{op_str}{prev_str}"
