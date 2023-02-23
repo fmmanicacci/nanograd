@@ -1,7 +1,6 @@
 """Definition of the Scalar object."""
 
 from typing import Union
-
 from .enums import Operation
 
 class Scalar:
@@ -70,8 +69,8 @@ class Scalar:
         )
         # Define the backward function: the gradient of each operand is the gradient of the output
         def _backward_fn() -> None:
-                self._grad += self._backward * out._grad
-                other._grad += other._backward * out._grad
+            self._grad += self._backward * out._grad
+            other._grad += other._backward * out._grad
         out._backward_fn = _backward_fn
         return out
 
