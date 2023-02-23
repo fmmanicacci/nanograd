@@ -8,7 +8,7 @@ def test__radd__int() -> None:
     """Test that the right addition operator works when the argument is an int."""
     x = Scalar(1.0, requires_grad=True)
     z = 1 + x
-    y = (y._prev - {x}).pop()
+    y = (z._prev - {x}).pop()
     # Check that the output is correct.
     assert z.data == 2.0
     assert z.requires_grad
