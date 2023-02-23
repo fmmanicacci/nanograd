@@ -37,8 +37,3 @@ class Scalar:
         
     def __repr__(self) -> str:
         """Provide an information-rich string representation of the object."""
-
-
-if __name__ == '__main__':
-    print(Scalar(42, _op=Operation.ADD))
-    
