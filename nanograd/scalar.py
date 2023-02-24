@@ -68,6 +68,12 @@ class Scalar:
         out.label = label
         return out
     
+    def sub(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+        """Subtraction operator."""
+        out = self - other
+        out.label = label
+        return out
+    
     def __neg__(self) -> 'Scalar':
         """Negation operator."""
         # Perform the negation.
@@ -80,6 +86,24 @@ class Scalar:
         # Define the backward function
         def _backward_fn() -> None:
             self._grad += self._backward * (-1.0) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+
+    def __sub__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Subtraction operator."""
+        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        other = Scalar.as_scalar(other)
+        # Perform the subtraction.
+        out = Scalar(
+            self.data - other.data,
+            requires_grad=True,
+            _prev={self, other},
+            _op=Operation.SUBTRACTION
+        )
+        # Define the backward function: the gradient of each operand is the gradient of the output
+        def _backward_fn() -> None:
+            self._grad += self._backward * (1.0) * out._grad
+            other._grad += other._backward * (-1.0) * out._grad
         out._backward_fn = _backward_fn
         return out
     
