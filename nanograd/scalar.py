@@ -61,7 +61,28 @@ class Scalar:
         out = self + other
         out.label = label
         return out
-
+    
+    def neg(self, label: str | None = None) -> 'Scalar':
+        """Negation operator."""
+        out = -self
+        out.label = label
+        return out
+    
+    def __neg__(self) -> 'Scalar':
+        """Negation operator."""
+        # Perform the negation.
+        out = Scalar(
+            -self.data,
+            requires_grad=True,
+            _prev={self},
+            _op=Operation.NEGATION
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad += self._backward * (-1.0) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+    
     def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """Addition operator."""
         # Check that the type of the argument is supported and cast it to a Scalar if necessary.
@@ -75,8 +96,8 @@ class Scalar:
         )
         # Define the backward function: the gradient of each operand is the gradient of the output
         def _backward_fn() -> None:
-            self._grad += self._backward * out._grad
-            other._grad += other._backward * out._grad
+            self._grad += self._backward * (1.0) * out._grad
+            other._grad += other._backward * (1.0) * out._grad
         out._backward_fn = _backward_fn
         return out
 

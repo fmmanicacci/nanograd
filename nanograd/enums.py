@@ -11,3 +11,4 @@ class Operation(Enum):
     NONE = 'none'
     IDENTITY = 'identity'
     ADDITION = 'add'
+    NEGATION = 'neg'
