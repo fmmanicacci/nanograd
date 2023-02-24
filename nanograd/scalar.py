@@ -1,5 +1,6 @@
 """Definition of the Scalar object."""
 
+from typing import Union
 from .enums import Operation
 
 class Scalar:
@@ -24,8 +25,66 @@ class Scalar:
         self._grad = 0.0
         self._prev = set() if _prev is None else _prev
         self._op = _op
-        self.backward_fn = lambda: None
-        
+        self._backward_fn = lambda: None
+        self._backward = 0.0
+        self.requires_grad_(requires_grad)
+
+    @staticmethod
+    def supported_type(x: Union[int, float, 'Scalar']) -> None:
+        """Check that the type of the argument `x` is supported."""
+        if not isinstance(x, (Scalar, int, float)):
+            raise TypeError(f"The following type {type(x)} is not supported.")
+
+    @staticmethod
+    def as_scalar(
+        x: int | float,
+        label: str | None = None,
+        requires_grad: bool = False
+    ) -> 'Scalar':
+        """Return the argument `x` as a Scalar if it is possible."""
+        Scalar.supported_type(x)
+        if isinstance(x, Scalar):
+            return x
+        elif isinstance(x, (int, float)):
+            return Scalar(x, label=label, requires_grad=requires_grad)
+
+    def requires_grad_(self, requires_grad: bool) -> None:
+        """Set the `requires_grad` attribute of the object."""
+        self.requires_grad = requires_grad
+        # If the object requires gradient, we need to set the `_backward` attribute to 1.0
+        # so that the gradient is computed during the backward phase.
+        # Otherwise, we set it to 0.0 so that the gradient is not computed.
+        self._backward = 1.0 if requires_grad else 0.0
+
+    def add(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+        """Addition operator."""
+        out = self + other
+        out.label = label
+        return out
+
+    def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Addition operator."""
+        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        other = Scalar.as_scalar(other)
+        # Perform the addition.
+        out = Scalar(
+            self.data + other.data,
+            requires_grad=True,
+            _prev={self, other},
+            _op=Operation.ADDITION
+        )
+        # Define the backward function: the gradient of each operand is the gradient of the output
+        def _backward_fn() -> None:
+            self._grad += self._backward * out._grad
+            other._grad += other._backward * out._grad
+        out._backward_fn = _backward_fn
+        return out
+
+    def __radd__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Right addition operator."""
+        # Addition is commutative, so we can use the __add__ method.
+        return self + other
+
     def __str__(self) -> str:
         """Provide a string representation of the object."""
         label_str = "" if self.label is None else f"label={self.label}, "
