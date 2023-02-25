@@ -159,6 +159,11 @@ class Scalar:
             other._grad += other._backward * self.data * out._grad
         out._backward_fn = _backward_fn
         return out
+    
+    def __rmul__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Right multiplication operator."""
+        # Multiplication is commutative, so we can use the __mul__ method.
+        return self * other
 
     def __str__(self) -> str:
         """Provide a string representation of the object."""
