@@ -107,6 +107,12 @@ class Scalar:
         out._backward_fn = _backward_fn
         return out
     
+    def __rsub__(self, other: int | float) -> 'Scalar':
+        """Right subtraction operator."""
+        other = Scalar.as_scalar(other)
+        out = other - self
+        return out
+    
     def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """Addition operator."""
         # Check that the type of the argument is supported and cast it to a Scalar if necessary.
