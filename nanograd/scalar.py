@@ -74,6 +74,35 @@ class Scalar:
         out.label = label
         return out
     
+    def mul(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+        """Multiplication operator."""
+        out = self * other
+        out.label = label
+        return out
+    
+    def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Addition operator."""
+        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        other = Scalar.as_scalar(other)
+        # Perform the addition.
+        out = Scalar(
+            self.data + other.data,
+            requires_grad=True,
+            _prev={self, other},
+            _op=Operation.ADDITION
+        )
+        # Define the backward function: the gradient of each operand is the gradient of the output
+        def _backward_fn() -> None:
+            self._grad += self._backward * (1.0) * out._grad
+            other._grad += other._backward * (1.0) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+
+    def __radd__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Right addition operator."""
+        # Addition is commutative, so we can use the __add__ method.
+        return self + other
+    
     def __neg__(self) -> 'Scalar':
         """Negation operator."""
         # Perform the negation.
@@ -113,28 +142,28 @@ class Scalar:
         out = other - self
         return out
     
-    def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
-        """Addition operator."""
+    def __mul__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Multiplication operator."""
         # Check that the type of the argument is supported and cast it to a Scalar if necessary.
         other = Scalar.as_scalar(other)
-        # Perform the addition.
+        # Perform the multiplication.
         out = Scalar(
-            self.data + other.data,
+            self.data * other.data,
             requires_grad=True,
             _prev={self, other},
-            _op=Operation.ADDITION
+            _op=Operation.MULTIPLICATION
         )
-        # Define the backward function: the gradient of each operand is the gradient of the output
+        # Define the backward function
         def _backward_fn() -> None:
-            self._grad += self._backward * (1.0) * out._grad
-            other._grad += other._backward * (1.0) * out._grad
+            self._grad += self._backward * other.data * out._grad
+            other._grad += other._backward * self.data * out._grad
         out._backward_fn = _backward_fn
         return out
-
-    def __radd__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
-        """Right addition operator."""
-        # Addition is commutative, so we can use the __add__ method.
-        return self + other
+    
+    def __rmul__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Right multiplication operator."""
+        # Multiplication is commutative, so we can use the __mul__ method.
+        return self * other
 
     def __str__(self) -> str:
         """Provide a string representation of the object."""

@@ -13,3 +13,5 @@ class Operation(Enum):
     ADDITION = 'add'
     NEGATION = 'neg'
     SUBTRACTION = 'sub'
+    MULTIPLICATION = 'mul'
+    
