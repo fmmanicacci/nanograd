@@ -182,6 +182,14 @@ class Scalar:
             other._grad = other._backward * (-self.data / (other.data**2)) * out._grad
         out._backward_fn = _backward_fn
         return out
+    
+    def __rtruediv__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Right true division operator."""
+        # Division is a non-commutative operator, we cannot re-use the code of the
+        # __truediv__ method directly.
+        other = Scalar.as_scalar(other)
+        out = other / self
+        return out
         
     def __str__(self) -> str:
         """Provide a string representation of the object."""
