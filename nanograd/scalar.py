@@ -164,7 +164,25 @@ class Scalar:
         """Right multiplication operator."""
         # Multiplication is commutative, so we can use the __mul__ method.
         return self * other
-
+    
+    def __truediv__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """True division operator."""
+        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        other = Scalar.as_scalar(other)
+        # Perform the division
+        out = Scalar(
+            self.data / other.data,
+            requires_grad=True,
+            _prev={self, other},
+            _op=Operation.DIVISION
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad = self._backward * (1.0 / other.data) * out._grad
+            other._grad = other._backward * (-self.data / (other.data**2)) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+        
     def __str__(self) -> str:
         """Provide a string representation of the object."""
         label_str = "" if self.label is None else f"label={self.label}, "
