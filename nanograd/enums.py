@@ -15,3 +15,5 @@ class Operation(Enum):
     SUBTRACTION = 'sub'
     MULTIPLICATION = 'mul'
     DIVISION = 'div'
+    FLOOR_DIVISION = 'floordiv'
+    

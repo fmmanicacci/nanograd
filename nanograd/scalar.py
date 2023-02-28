@@ -196,6 +196,27 @@ class Scalar:
         other = Scalar.as_scalar(other)
         out = other / self
         return out
+
+    def __floordiv__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Floor division operator."""
+        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        other = Scalar.as_scalar(other)
+        # Perform the floor division
+        out = Scalar(
+            self.data // other.data,
+            requires_grad=True,
+            _prev={self, other},
+            _op=Operation.FLOOR_DIVISION
+        )
+        # Define the backward function
+        # Floor division is somewhat similar to the step function, its gradient
+        # is zero everywhere except at the integer values where it is undefined.
+        # For simplicity, we will assume that the gradient is zero everywhere.
+        def _backward_fn() -> None:
+            self._grad = 0.0
+            other._grad = 0.0
+        out._backward_fn = _backward_fn
+        return out
         
     def __str__(self) -> str:
         """Provide a string representation of the object."""
