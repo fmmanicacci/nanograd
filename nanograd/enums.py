@@ -14,4 +14,6 @@ class Operation(Enum):
     NEGATION = 'neg'
     SUBTRACTION = 'sub'
     MULTIPLICATION = 'mul'
+    DIVISION = 'div'
+    FLOOR_DIVISION = 'floordiv'
     

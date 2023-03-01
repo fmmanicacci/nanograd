@@ -80,6 +80,18 @@ class Scalar:
         out.label = label
         return out
     
+    def div(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+        """Division operator."""
+        out = self / other
+        out.label = label
+        return out
+    
+    def floordiv(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+        """Floor division operator."""
+        out = self // other
+        out.label = label
+        return out
+    
     def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """Addition operator."""
         # Check that the type of the argument is supported and cast it to a Scalar if necessary.
@@ -164,7 +176,62 @@ class Scalar:
         """Right multiplication operator."""
         # Multiplication is commutative, so we can use the __mul__ method.
         return self * other
+    
+    def __truediv__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """True division operator."""
+        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        other = Scalar.as_scalar(other)
+        # Perform the division
+        out = Scalar(
+            self.data / other.data,
+            requires_grad=True,
+            _prev={self, other},
+            _op=Operation.DIVISION
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad = self._backward * (1.0 / other.data) * out._grad
+            other._grad = other._backward * (-self.data / (other.data**2)) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+    
+    def __rtruediv__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Right true division operator."""
+        # Division is a non-commutative operator, we cannot re-use the code of the
+        # __truediv__ method directly.
+        other = Scalar.as_scalar(other)
+        out = other / self
+        return out
 
+    def __floordiv__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Floor division operator."""
+        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        other = Scalar.as_scalar(other)
+        # Perform the floor division
+        out = Scalar(
+            self.data // other.data,
+            requires_grad=True,
+            _prev={self, other},
+            _op=Operation.FLOOR_DIVISION
+        )
+        # Define the backward function
+        # Floor division is somewhat similar to the step function, its gradient
+        # is zero everywhere except at the integer values where it is undefined.
+        # For simplicity, we will assume that the gradient is zero everywhere.
+        def _backward_fn() -> None:
+            self._grad = 0.0
+            other._grad = 0.0
+        out._backward_fn = _backward_fn
+        return out
+    
+    def __rfloordiv__(self, other: int | float) -> 'Scalar':
+        """Right floor division operator."""
+        # Because gradient is always zero, we can re-use the code of the
+        # __floordiv__ method directly.
+        other = Scalar.as_scalar(other)
+        out = other // self
+        return out
+        
     def __str__(self) -> str:
         """Provide a string representation of the object."""
         label_str = "" if self.label is None else f"label={self.label}, "
