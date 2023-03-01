@@ -9,6 +9,7 @@ def test__rfloordiv__int() -> None:
     x = Scalar(1.143498, requires_grad=True)
     z = 2 // x
     y = (z._prev - {x}).pop()
+    y.requires_grad_(True)
     z._grad = 1.0
     z._backward_fn()
 
@@ -24,6 +25,7 @@ def test__rfloordiv__float() -> None:
     x = Scalar(1.143498, requires_grad=True)
     z = 2.0 // x
     y = (z._prev - {x}).pop()
+    y.requires_grad_(True)
     z._grad = 1.0
     z._backward_fn()
 
