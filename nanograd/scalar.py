@@ -86,6 +86,12 @@ class Scalar:
         out.label = label
         return out
     
+    def floordiv(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+        """Floor division operator."""
+        out = self // other
+        out.label = label
+        return out
+    
     def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """Addition operator."""
         # Check that the type of the argument is supported and cast it to a Scalar if necessary.
