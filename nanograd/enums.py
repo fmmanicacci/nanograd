@@ -17,4 +17,5 @@ class Operation(Enum):
     DIVISION = 'div'
     FLOOR_DIVISION = 'floordiv'
     INVERTION = 'inv'
+    EXPONENTIATION = 'pow'
     

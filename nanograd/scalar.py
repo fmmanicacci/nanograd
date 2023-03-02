@@ -1,5 +1,6 @@
 """Definition of the Scalar object."""
 
+from math import log
 from typing import Union
 from .enums import Operation
 
@@ -250,6 +251,24 @@ class Scalar:
         # Define the backward function
         def _backward_fn() -> None:
             self._grad = self._backward * ((-1.0)/(self.data**2)) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+    
+    def __pow__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Exponentiation operator."""
+        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        other = Scalar.as_scalar(other)
+        # Perform the exponentiation
+        out = Scalar(
+            self.data ** other.data,
+            requires_grad=True,
+            _prev={self, other},
+            _op=Operation.EXPONENTIATION
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad += self._backward * (other.data * ((self.data) ** (other.data - 1.0))) * out._grad
+            other._grad += other._backward * (log(self.data) * (self.data ** other.data)) * out._grad
         out._backward_fn = _backward_fn
         return out
         
