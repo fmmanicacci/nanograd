@@ -231,6 +231,21 @@ class Scalar:
         other = Scalar.as_scalar(other)
         out = other // self
         return out
+    
+    def __invert__(self) -> 'Scalar':
+        """Inverse operator."""
+        # Perform the invertion operation
+        out = Scalar(
+            self.data ** (-1.0),
+            requires_grad=True,
+            _prev={self},
+            _op=Operation.INVERTION
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad = self._backward * ((-1.0)/(self.data**2)) * out._grad
+        out._backward_fn = _backward_fn
+        return out
         
     def __str__(self) -> str:
         """Provide a string representation of the object."""
