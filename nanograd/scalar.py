@@ -92,6 +92,12 @@ class Scalar:
         out.label = label
         return out
     
+    def invert(self, label: str | None = None) -> 'Scalar':
+        """Invertion operator."""
+        out = self.__invert__()
+        out.label = label
+        return out
+    
     def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """Addition operator."""
         # Check that the type of the argument is supported and cast it to a Scalar if necessary.
