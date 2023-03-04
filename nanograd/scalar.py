@@ -1,5 +1,6 @@
 """Definition of the Scalar object."""
 
+from math import log
 from typing import Union
 from .enums import Operation
 
@@ -89,6 +90,18 @@ class Scalar:
     def floordiv(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
         """Floor division operator."""
         out = self // other
+        out.label = label
+        return out
+    
+    def invert(self, label: str | None = None) -> 'Scalar':
+        """Invertion operator."""
+        out = self.__invert__()
+        out.label = label
+        return out
+    
+    def pow(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+        """Power operator."""
+        out = self ** other
         out.label = label
         return out
     
@@ -230,6 +243,47 @@ class Scalar:
         # __floordiv__ method directly.
         other = Scalar.as_scalar(other)
         out = other // self
+        return out
+    
+    def __invert__(self) -> 'Scalar':
+        """Inverse operator."""
+        # Perform the invertion operation
+        out = Scalar(
+            self.data ** (-1.0),
+            requires_grad=True,
+            _prev={self},
+            _op=Operation.INVERTION
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad = self._backward * ((-1.0)/(self.data**2)) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+    
+    def __pow__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+        """Exponentiation operator."""
+        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        other = Scalar.as_scalar(other)
+        # Perform the exponentiation
+        out = Scalar(
+            self.data ** other.data,
+            requires_grad=True,
+            _prev={self, other},
+            _op=Operation.EXPONENTIATION
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad += self._backward * (other.data * ((self.data) ** (other.data - 1.0))) * out._grad
+            other._grad += other._backward * (log(self.data) * (self.data ** other.data)) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+    
+    def __rpow__(self, other: int | float) -> 'Scalar':
+        """Right exponentiation operator."""
+        # Exponentiation is a non-commutative operator, we cannot re-use the code of the
+        # __pow__ method directly.
+        other = Scalar.as_scalar(other)
+        out = other ** self
         return out
         
     def __str__(self) -> str:
