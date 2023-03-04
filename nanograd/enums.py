@@ -19,3 +19,4 @@ class Operation(Enum):
     INVERTION = 'inv'
     EXPONENTIATION = 'pow'
     EXPONENTIAL = 'exp'
+    HYPERBOLIC_TANGENT = 'tanh'

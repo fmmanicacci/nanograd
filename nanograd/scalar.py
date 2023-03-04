@@ -1,6 +1,6 @@
 """Definition of the Scalar object."""
 
-from math import exp, log
+from math import exp, log, tanh
 from typing import Union
 from .enums import Operation
 
@@ -118,6 +118,22 @@ class Scalar:
         # Define the backward function
         def _backward_fn() -> None:
             self._grad += self._backward * (out.data) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+    
+    def tanh(self, label: str | None = None) -> 'Scalar':
+        """Hyperbolic tangent operator."""
+        # Perform the hyperbolic tangent.
+        out = Scalar(
+            tanh(self.data),
+            label=label,
+            requires_grad=True,
+            _prev={self},
+            _op=Operation.HYPERBOLIC_TANGENT
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad += self._backward * (1.0 - out.data**2) * out._grad
         out._backward_fn = _backward_fn
         return out
     
