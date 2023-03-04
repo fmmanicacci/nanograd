@@ -235,8 +235,8 @@ class Scalar:
         )
         # Define the backward function
         def _backward_fn() -> None:
-            self._grad = self._backward * (1.0 / other.data) * out._grad
-            other._grad = other._backward * (-self.data / (other.data**2)) * out._grad
+            self._grad += self._backward * (1.0 / other.data) * out._grad
+            other._grad += other._backward * (-self.data / (other.data**2)) * out._grad
         out._backward_fn = _backward_fn
         return out
     
@@ -264,8 +264,8 @@ class Scalar:
         # is zero everywhere except at the integer values where it is undefined.
         # For simplicity, we will assume that the gradient is zero everywhere.
         def _backward_fn() -> None:
-            self._grad = 0.0
-            other._grad = 0.0
+            self._grad += self._backward * 0.0 * out._grad
+            other._grad += other._backward * 0.0 * out._grad
         out._backward_fn = _backward_fn
         return out
     
@@ -288,7 +288,7 @@ class Scalar:
         )
         # Define the backward function
         def _backward_fn() -> None:
-            self._grad = self._backward * ((-1.0)/(self.data**2)) * out._grad
+            self._grad += self._backward * ((-1.0)/(self.data**2)) * out._grad
         out._backward_fn = _backward_fn
         return out
     
