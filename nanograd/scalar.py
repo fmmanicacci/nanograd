@@ -1,6 +1,6 @@
 """Definition of the Scalar object."""
 
-from math import log
+from math import exp, log
 from typing import Union
 from .enums import Operation
 
@@ -103,6 +103,22 @@ class Scalar:
         """Power operator."""
         out = self ** other
         out.label = label
+        return out
+    
+    def exp(self, label: str | None = None) -> 'Scalar':
+        """Exponential operator."""
+        # Perform the exponential.
+        out = Scalar(
+            exp(self.data),
+            label=label,
+            requires_grad=True,
+            _prev={self},
+            _op=Operation.EXPONENTIAL
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad += self._backward * (out.data) * out._grad
+        out._backward_fn = _backward_fn
         return out
     
     def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
