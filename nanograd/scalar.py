@@ -271,6 +271,14 @@ class Scalar:
             other._grad += other._backward * (log(self.data) * (self.data ** other.data)) * out._grad
         out._backward_fn = _backward_fn
         return out
+    
+    def __rpow__(self, other: int | float) -> 'Scalar':
+        """Right exponentiation operator."""
+        # Exponentiation is a non-commutative operator, we cannot re-use the code of the
+        # __pow__ method directly.
+        other = Scalar.as_scalar(other)
+        out = other ** self
+        return out
         
     def __str__(self) -> str:
         """Provide a string representation of the object."""
