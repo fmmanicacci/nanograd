@@ -20,3 +20,4 @@ class Operation(Enum):
     EXPONENTIATION = 'pow'
     EXPONENTIAL = 'exp'
     HYPERBOLIC_TANGENT = 'tanh'
+    RELU = 'relu'

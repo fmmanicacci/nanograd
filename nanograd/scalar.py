@@ -137,6 +137,22 @@ class Scalar:
         out._backward_fn = _backward_fn
         return out
     
+    def relu(self, label: str | None = None) -> 'Scalar':
+        """ReLU operator."""
+        # Perform the ReLU.
+        out = Scalar(
+            max(0.0, self.data),
+            label=label,
+            requires_grad=True,
+            _prev={self},
+            _op=Operation.RELU
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad += self._backward * (1.0 if self.data > 0.0 else 0.0) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+    
     def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """Addition operator."""
         # Check that the type of the argument is supported and cast it to a Scalar if necessary.
