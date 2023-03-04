@@ -1,6 +1,6 @@
 """Definition of the Scalar object."""
 
-from math import exp, log
+from math import exp, log, tanh
 from typing import Union
 from .enums import Operation
 
@@ -121,6 +121,22 @@ class Scalar:
         out._backward_fn = _backward_fn
         return out
     
+    def tanh(self, label: str | None = None) -> 'Scalar':
+        """Hyperbolic tangent operator."""
+        # Perform the hyperbolic tangent.
+        out = Scalar(
+            tanh(self.data),
+            label=label,
+            requires_grad=True,
+            _prev={self},
+            _op=Operation.HYPERBOLIC_TANGENT
+        )
+        # Define the backward function
+        def _backward_fn() -> None:
+            self._grad += self._backward * (1.0 - out.data**2) * out._grad
+        out._backward_fn = _backward_fn
+        return out
+    
     def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """Addition operator."""
         # Check that the type of the argument is supported and cast it to a Scalar if necessary.
@@ -219,8 +235,8 @@ class Scalar:
         )
         # Define the backward function
         def _backward_fn() -> None:
-            self._grad = self._backward * (1.0 / other.data) * out._grad
-            other._grad = other._backward * (-self.data / (other.data**2)) * out._grad
+            self._grad += self._backward * (1.0 / other.data) * out._grad
+            other._grad += other._backward * (-self.data / (other.data**2)) * out._grad
         out._backward_fn = _backward_fn
         return out
     
@@ -248,8 +264,8 @@ class Scalar:
         # is zero everywhere except at the integer values where it is undefined.
         # For simplicity, we will assume that the gradient is zero everywhere.
         def _backward_fn() -> None:
-            self._grad = 0.0
-            other._grad = 0.0
+            self._grad += self._backward * 0.0 * out._grad
+            other._grad += other._backward * 0.0 * out._grad
         out._backward_fn = _backward_fn
         return out
     
@@ -272,7 +288,7 @@ class Scalar:
         )
         # Define the backward function
         def _backward_fn() -> None:
-            self._grad = self._backward * ((-1.0)/(self.data**2)) * out._grad
+            self._grad += self._backward * ((-1.0)/(self.data**2)) * out._grad
         out._backward_fn = _backward_fn
         return out
     
