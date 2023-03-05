@@ -2,7 +2,7 @@
 
 from .types import _NodeLike
 
-def topological_sort(self) -> set[_NodeLike]:
+def topological_sort(root: _NodeLike) -> set[_NodeLike]:
         """Topological sort of the computational graph."""
         topo, visited = set(), set()
         def _topological_sort(node: _NodeLike) -> None:
@@ -11,5 +11,5 @@ def topological_sort(self) -> set[_NodeLike]:
                 for prev in node._prev:
                     _topological_sort(prev)
                 topo.add(node)
-        _topological_sort(self)
+        _topological_sort(root)
         return topo
