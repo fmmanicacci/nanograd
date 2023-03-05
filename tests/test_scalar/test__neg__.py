@@ -2,6 +2,7 @@
 
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
 
 def test_negation() -> None:
     """Test the negation operator."""
@@ -11,5 +12,5 @@ def test_negation() -> None:
     y._backward_fn()
     assert y.data == -x.data
     assert y._op == Operation.NEGATION
-    assert y._prev == {x}
+    assert y._prev == OrderedSet([x])
     assert x._grad == -1.0

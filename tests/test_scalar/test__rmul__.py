@@ -1,8 +1,9 @@
 """Test suit for the __rmul__ method of the Scalar object."""
 
-from pytest import raises
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
+from pytest import raises
 
 def test__rmul__int() -> None:
     """Test the __rmul__ method with an int as argument."""
@@ -14,9 +15,7 @@ def test__rmul__int() -> None:
     z._backward_fn()
     assert z.data == 4.0
     assert z._op == Operation.MULTIPLICATION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([y, x])
     assert x._grad == y.data
     assert y._grad == x.data
 
@@ -31,9 +30,7 @@ def test__rmul__float() -> None:
     z._backward_fn()
     assert z.data == 4.0
     assert z._op == Operation.MULTIPLICATION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([y, x])
     assert x._grad == y.data
     assert y._grad == x.data
 

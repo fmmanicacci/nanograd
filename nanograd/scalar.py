@@ -3,6 +3,8 @@
 from math import exp, log, tanh
 from typing import Union
 from .enums import Operation
+from .utils import topological_sort
+from ordered_set import OrderedSet
 
 class Scalar:
     """
@@ -16,7 +18,7 @@ class Scalar:
         data: int | float,
         label: str | None = None,
         requires_grad: bool = False,
-        _prev: set['Scalar'] = None,
+        _prev: OrderedSet['Scalar'] = None,
         _op: Operation = Operation.NONE
     ) -> None:
         """Constructor."""
@@ -24,7 +26,7 @@ class Scalar:
         self.label = label
         self.requires_grad = requires_grad
         self._grad = 0.0
-        self._prev = set() if _prev is None else _prev
+        self._prev = OrderedSet() if _prev is None else _prev
         self._op = _op
         self._backward_fn = lambda: None
         self._backward = 0.0
@@ -112,7 +114,7 @@ class Scalar:
             exp(self.data),
             label=label,
             requires_grad=True,
-            _prev={self},
+            _prev=OrderedSet([self]),
             _op=Operation.EXPONENTIAL
         )
         # Define the backward function
@@ -128,7 +130,7 @@ class Scalar:
             tanh(self.data),
             label=label,
             requires_grad=True,
-            _prev={self},
+            _prev=OrderedSet([self]),
             _op=Operation.HYPERBOLIC_TANGENT
         )
         # Define the backward function
@@ -144,7 +146,7 @@ class Scalar:
             max(0.0, self.data),
             label=label,
             requires_grad=True,
-            _prev={self},
+            _prev=OrderedSet([self]),
             _op=Operation.RELU
         )
         # Define the backward function
@@ -152,6 +154,15 @@ class Scalar:
             self._grad += self._backward * (1.0 if self.data > 0.0 else 0.0) * out._grad
         out._backward_fn = _backward_fn
         return out
+    
+    def backward(self) -> None:
+        """Backward pass."""
+        # Compute the topological sort of the computational graph.
+        topo = topological_sort(self)
+        # Perform the backward pass.
+        self._grad = 1.0
+        for x in reversed(topo):
+            x._backward_fn()
     
     def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """Addition operator."""
@@ -161,7 +172,7 @@ class Scalar:
         out = Scalar(
             self.data + other.data,
             requires_grad=True,
-            _prev={self, other},
+            _prev=OrderedSet([self, other]),
             _op=Operation.ADDITION
         )
         # Define the backward function: the gradient of each operand is the gradient of the output
@@ -182,7 +193,7 @@ class Scalar:
         out = Scalar(
             -self.data,
             requires_grad=True,
-            _prev={self},
+            _prev=OrderedSet([self]),
             _op=Operation.NEGATION
         )
         # Define the backward function
@@ -199,7 +210,7 @@ class Scalar:
         out = Scalar(
             self.data - other.data,
             requires_grad=True,
-            _prev={self, other},
+            _prev=OrderedSet([self, other]),
             _op=Operation.SUBTRACTION
         )
         # Define the backward function: the gradient of each operand is the gradient of the output
@@ -223,7 +234,7 @@ class Scalar:
         out = Scalar(
             self.data * other.data,
             requires_grad=True,
-            _prev={self, other},
+            _prev=OrderedSet([self, other]),
             _op=Operation.MULTIPLICATION
         )
         # Define the backward function
@@ -236,7 +247,8 @@ class Scalar:
     def __rmul__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """Right multiplication operator."""
         # Multiplication is commutative, so we can use the __mul__ method.
-        return self * other
+        other = Scalar.as_scalar(other)
+        return other * self
     
     def __truediv__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
         """True division operator."""
@@ -246,7 +258,7 @@ class Scalar:
         out = Scalar(
             self.data / other.data,
             requires_grad=True,
-            _prev={self, other},
+            _prev=OrderedSet([self, other]),
             _op=Operation.DIVISION
         )
         # Define the backward function
@@ -272,7 +284,7 @@ class Scalar:
         out = Scalar(
             self.data // other.data,
             requires_grad=True,
-            _prev={self, other},
+            _prev=OrderedSet([self, other]),
             _op=Operation.FLOOR_DIVISION
         )
         # Define the backward function
@@ -299,7 +311,7 @@ class Scalar:
         out = Scalar(
             self.data ** (-1.0),
             requires_grad=True,
-            _prev={self},
+            _prev=OrderedSet([self]),
             _op=Operation.INVERTION
         )
         # Define the backward function
@@ -316,7 +328,7 @@ class Scalar:
         out = Scalar(
             self.data ** other.data,
             requires_grad=True,
-            _prev={self, other},
+            _prev=OrderedSet([self, other]),
             _op=Operation.EXPONENTIATION
         )
         # Define the backward function

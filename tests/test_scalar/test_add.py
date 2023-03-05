@@ -2,6 +2,7 @@
 
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
 
 def test_add() -> None:
     """Test that the add method works properly."""
@@ -15,8 +16,6 @@ def test_add() -> None:
     assert z.label == label
     assert z.requires_grad
     assert z._op == Operation.ADDITION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([x, y])
     assert x._grad == 1.0
     assert y._grad == 1.0

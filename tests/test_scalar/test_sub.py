@@ -2,6 +2,7 @@
 
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
 
 def test_sub_with_label() -> None:
     """Test the sub method with a label."""
@@ -13,9 +14,7 @@ def test_sub_with_label() -> None:
 
     assert z.data == -1.0
     assert z._op == Operation.SUBTRACTION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([x, y])
     assert x._grad == 1.0
     assert y._grad == -1.0
     assert z.label == "z"

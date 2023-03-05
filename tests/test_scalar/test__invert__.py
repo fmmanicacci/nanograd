@@ -3,6 +3,7 @@
 from math import isclose
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
 
 def test__invert() -> None:
     """Test the __invert__ method."""
@@ -12,7 +13,7 @@ def test__invert() -> None:
     z._backward_fn()
     
     assert isclose(z.data, x.data ** (-1.0))
-    assert z._prev == {x}
+    assert z._prev == OrderedSet([x])
     assert z._op == Operation.INVERTION
     assert isclose(x._grad, (-1.0)/(x.data**2))
     

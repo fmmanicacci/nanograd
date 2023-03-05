@@ -2,6 +2,7 @@
 
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
 
 def test_relu_with_label() -> None:
     """Test of the relu method with a label."""
@@ -12,6 +13,6 @@ def test_relu_with_label() -> None:
 
     assert y.data == 1.0
     assert y.label == "y"
-    assert y._prev == {x}
+    assert y._prev == OrderedSet([x])
     assert y._op == Operation.RELU
     assert x._grad == 1.0

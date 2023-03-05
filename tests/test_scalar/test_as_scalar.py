@@ -1,7 +1,7 @@
 """Test suit for the static method `as_scalar`."""
 
-from pytest import raises
 from nanograd.scalar import Scalar
+from pytest import raises
 
 def test_as_scalar_int() -> None:
     a = 21

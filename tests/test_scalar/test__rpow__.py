@@ -1,9 +1,10 @@
 """Test suite for the __rpow__ method of the Scalar object."""
 
 from math import isclose, log
-from pytest import raises
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
+from pytest import raises
 
 def test__rpow__int() -> None:
     """Test the __rpow__ method of the Scalar object with an int."""
@@ -16,7 +17,7 @@ def test__rpow__int() -> None:
 
     assert z.data == 4.0
     assert z._op == Operation.EXPONENTIATION
-    assert z._prev == {y, x}
+    assert z._prev == OrderedSet([y, x])
     assert isclose(x._grad, (y.data**x.data) * log(y.data))
     assert isclose(y._grad, (y.data**(x.data-1))* x.data)
 
@@ -32,7 +33,7 @@ def test__rpow__float() -> None:
 
     assert z.data == 4.0
     assert z._op == Operation.EXPONENTIATION
-    assert z._prev == {y, x}
+    assert z._prev == OrderedSet([y, x])
     assert isclose(x._grad, (y.data**x.data) * log(y.data))
     assert isclose(y._grad, (y.data**(x.data-1))* x.data)
 
