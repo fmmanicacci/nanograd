@@ -39,7 +39,9 @@ def test__rtruediv__float() -> None:
 
 
 def test__rtruediv__not_supported() -> None:
-    """Test the __rtruediv__ method with an argument with a type that is not supported."""
+    """
+    Test the __rtruediv__ method with an argument with a type that is not supported.
+    """
     y = Scalar(2.0, requires_grad=True)
     with raises(TypeError):
         "4.0" / y

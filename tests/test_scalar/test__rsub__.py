@@ -5,6 +5,7 @@ from nanograd.enums import Operation
 from ordered_set import OrderedSet
 from pytest import raises
 
+
 def test__rsub__int() -> None:
     """Test the __rsub__ method with an int."""
     x = Scalar(2, requires_grad=True)
@@ -19,6 +20,7 @@ def test__rsub__int() -> None:
     assert z._prev == OrderedSet([y, x])
     assert x._grad == -1.0
     assert y._grad == 1.0
+
 
 def test__rsub__float() -> None:
     """Test the __rsub__ method with a float."""
@@ -55,4 +57,4 @@ def test__rsub__unsupported() -> None:
     """Test the __rsub__ method with an unsupported type."""
     x = Scalar(2.0, requires_grad=True)
     with raises(TypeError):
-        z = "1.0" - x
+        "1.0" - x

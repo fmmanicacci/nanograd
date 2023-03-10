@@ -32,7 +32,21 @@ def test_str_with_label_op_identity() -> None:
 
 
 def test_str_with_label_op_identity_requires_grad() -> None:
-    a = Scalar(21, label="a", requires_grad=True, _op=Operation.IDENTITY, _prev={Scalar(21),})
+    a = Scalar(
+        21,
+        label="a",
+        requires_grad=True,
+        _op=Operation.IDENTITY,
+        _prev={Scalar(21),}
+    )
     str_repr = a.__str__()
-    exp_repr = "Scalar(label=a, data=21.000000, requires_grad=True, grad=0.000000, op=identity, prev=1)"
+    exp_repr = (
+        "Scalar("
+        "label=a, "
+        "data=21.000000, "
+        "requires_grad=True, "
+        "grad=0.000000, "
+        "op=identity, "
+        "prev=1)"
+    )
     assert str_repr == exp_repr

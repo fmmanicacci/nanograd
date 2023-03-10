@@ -4,7 +4,8 @@ setup(
     name='nanograd',
     packages=find_packages(include=['nanograd']),
     version='0.1.0',
-    description='A tiny scalar-valued autograd engine inspired from the one created by Karpathy',
+    description="""A tiny scalar-valued autograd engine inspired from the one created by
+    Karpathy""",
     author='François-Marie Manicacci',
     license='MIT',
     install_requires=[],

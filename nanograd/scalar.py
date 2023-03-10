@@ -6,20 +6,21 @@ from .enums import Operation
 from .utils import topological_sort
 from ordered_set import OrderedSet
 
+
 class Scalar:
     """
     A Scalar object represents a node in the computational graph. It is central piece
     of the autograd engine since it is in charge of computing the gradient during the
     backward phase.
     """
-    
+
     def __init__(
         self,
         data: int | float,
         label: str | None = None,
         requires_grad: bool = False,
-        _prev: OrderedSet['Scalar'] = None,
-        _op: Operation = Operation.NONE
+        _prev: OrderedSet["Scalar"] = None,
+        _op: Operation = Operation.NONE,
     ) -> None:
         """Constructor."""
         self.data = data
@@ -33,17 +34,15 @@ class Scalar:
         self.requires_grad_(requires_grad)
 
     @staticmethod
-    def supported_type(x: Union[int, float, 'Scalar']) -> None:
+    def supported_type(x: Union[int, float, "Scalar"]) -> None:
         """Check that the type of the argument `x` is supported."""
         if not isinstance(x, (Scalar, int, float)):
             raise TypeError(f"The following type {type(x)} is not supported.")
 
     @staticmethod
     def as_scalar(
-        x: int | float,
-        label: str | None = None,
-        requires_grad: bool = False
-    ) -> 'Scalar':
+        x: int | float, label: str | None = None, requires_grad: bool = False
+    ) -> "Scalar":
         """Return the argument `x` as a Scalar if it is possible."""
         Scalar.supported_type(x)
         if isinstance(x, Scalar):
@@ -54,60 +53,72 @@ class Scalar:
     def requires_grad_(self, requires_grad: bool) -> None:
         """Set the `requires_grad` attribute of the object."""
         self.requires_grad = requires_grad
-        # If the object requires gradient, we need to set the `_backward` attribute to 1.0
-        # so that the gradient is computed during the backward phase.
+        # If the object requires gradient, we need to set the `_backward` attribute to
+        # 1.0 so that the gradient is computed during the backward phase.
         # Otherwise, we set it to 0.0 so that the gradient is not computed.
         self._backward = 1.0 if requires_grad else 0.0
 
-    def add(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+    def add(
+        self, other: Union[int, float, "Scalar"], label: str | None = None
+    ) -> "Scalar":
         """Addition operator."""
         out = self + other
         out.label = label
         return out
-    
-    def neg(self, label: str | None = None) -> 'Scalar':
+
+    def neg(self, label: str | None = None) -> "Scalar":
         """Negation operator."""
         out = -self
         out.label = label
         return out
-    
-    def sub(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+
+    def sub(
+        self, other: Union[int, float, "Scalar"], label: str | None = None
+    ) -> "Scalar":
         """Subtraction operator."""
         out = self - other
         out.label = label
         return out
-    
-    def mul(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+
+    def mul(
+        self, other: Union[int, float, "Scalar"], label: str | None = None
+    ) -> "Scalar":
         """Multiplication operator."""
         out = self * other
         out.label = label
         return out
-    
-    def div(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+
+    def div(
+        self, other: Union[int, float, "Scalar"], label: str | None = None
+    ) -> "Scalar":
         """Division operator."""
         out = self / other
         out.label = label
         return out
-    
-    def floordiv(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+
+    def floordiv(
+        self, other: Union[int, float, "Scalar"], label: str | None = None
+    ) -> "Scalar":
         """Floor division operator."""
         out = self // other
         out.label = label
         return out
-    
-    def invert(self, label: str | None = None) -> 'Scalar':
+
+    def invert(self, label: str | None = None) -> "Scalar":
         """Invertion operator."""
         out = self.__invert__()
         out.label = label
         return out
-    
-    def pow(self, other: Union[int, float, 'Scalar'], label: str | None = None) -> 'Scalar':
+
+    def pow(
+        self, other: Union[int, float, "Scalar"], label: str | None = None
+    ) -> "Scalar":
         """Power operator."""
-        out = self ** other
+        out = self**other
         out.label = label
         return out
-    
-    def exp(self, label: str | None = None) -> 'Scalar':
+
+    def exp(self, label: str | None = None) -> "Scalar":
         """Exponential operator."""
         # Perform the exponential.
         out = Scalar(
@@ -115,15 +126,17 @@ class Scalar:
             label=label,
             requires_grad=True,
             _prev=OrderedSet([self]),
-            _op=Operation.EXPONENTIAL
+            _op=Operation.EXPONENTIAL,
         )
+
         # Define the backward function
         def _backward_fn() -> None:
             self._grad += self._backward * (out.data) * out._grad
+
         out._backward_fn = _backward_fn
         return out
-    
-    def tanh(self, label: str | None = None) -> 'Scalar':
+
+    def tanh(self, label: str | None = None) -> "Scalar":
         """Hyperbolic tangent operator."""
         # Perform the hyperbolic tangent.
         out = Scalar(
@@ -131,15 +144,17 @@ class Scalar:
             label=label,
             requires_grad=True,
             _prev=OrderedSet([self]),
-            _op=Operation.HYPERBOLIC_TANGENT
+            _op=Operation.HYPERBOLIC_TANGENT,
         )
+
         # Define the backward function
         def _backward_fn() -> None:
             self._grad += self._backward * (1.0 - out.data**2) * out._grad
+
         out._backward_fn = _backward_fn
         return out
-    
-    def relu(self, label: str | None = None) -> 'Scalar':
+
+    def relu(self, label: str | None = None) -> "Scalar":
         """ReLU operator."""
         # Perform the ReLU.
         out = Scalar(
@@ -147,14 +162,16 @@ class Scalar:
             label=label,
             requires_grad=True,
             _prev=OrderedSet([self]),
-            _op=Operation.RELU
+            _op=Operation.RELU,
         )
+
         # Define the backward function
         def _backward_fn() -> None:
             self._grad += self._backward * (1.0 if self.data > 0.0 else 0.0) * out._grad
+
         out._backward_fn = _backward_fn
         return out
-    
+
     def backward(self) -> None:
         """Backward pass."""
         # Compute the topological sort of the computational graph.
@@ -163,112 +180,130 @@ class Scalar:
         self._grad = 1.0
         for x in reversed(topo):
             x._backward_fn()
-    
-    def __add__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+
+    def __add__(self, other: Union[int, float, "Scalar"]) -> "Scalar":
         """Addition operator."""
-        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        # Check that the type of the argument is supported and cast it to a Scalar if
+        # necessary.
         other = Scalar.as_scalar(other)
         # Perform the addition.
         out = Scalar(
             self.data + other.data,
             requires_grad=True,
             _prev=OrderedSet([self, other]),
-            _op=Operation.ADDITION
+            _op=Operation.ADDITION,
         )
-        # Define the backward function: the gradient of each operand is the gradient of the output
+
+        # Define the backward function: the gradient of each operand is the gradient of
+        # the output
         def _backward_fn() -> None:
             self._grad += self._backward * (1.0) * out._grad
             other._grad += other._backward * (1.0) * out._grad
+
         out._backward_fn = _backward_fn
         return out
 
-    def __radd__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+    def __radd__(self, other: Union[int, float, "Scalar"]) -> "Scalar":
         """Right addition operator."""
         # Addition is commutative, so we can use the __add__ method.
         return self + other
-    
-    def __neg__(self) -> 'Scalar':
+
+    def __neg__(self) -> "Scalar":
         """Negation operator."""
         # Perform the negation.
         out = Scalar(
             -self.data,
             requires_grad=True,
             _prev=OrderedSet([self]),
-            _op=Operation.NEGATION
+            _op=Operation.NEGATION,
         )
+
         # Define the backward function
         def _backward_fn() -> None:
             self._grad += self._backward * (-1.0) * out._grad
+
         out._backward_fn = _backward_fn
         return out
 
-    def __sub__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+    def __sub__(self, other: Union[int, float, "Scalar"]) -> "Scalar":
         """Subtraction operator."""
-        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        # Check that the type of the argument is supported and cast it to a Scalar if
+        # necessary.
         other = Scalar.as_scalar(other)
         # Perform the subtraction.
         out = Scalar(
             self.data - other.data,
             requires_grad=True,
             _prev=OrderedSet([self, other]),
-            _op=Operation.SUBTRACTION
+            _op=Operation.SUBTRACTION,
         )
-        # Define the backward function: the gradient of each operand is the gradient of the output
+
+        # Define the backward function: the gradient of each operand is the gradient of
+        # the output
         def _backward_fn() -> None:
             self._grad += self._backward * (1.0) * out._grad
             other._grad += other._backward * (-1.0) * out._grad
+
         out._backward_fn = _backward_fn
         return out
-    
-    def __rsub__(self, other: int | float) -> 'Scalar':
+
+    def __rsub__(self, other: int | float) -> "Scalar":
         """Right subtraction operator."""
         other = Scalar.as_scalar(other)
         out = other - self
         return out
-    
-    def __mul__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+
+    def __mul__(self, other: Union[int, float, "Scalar"]) -> "Scalar":
         """Multiplication operator."""
-        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        # Check that the type of the argument is supported and cast it to a Scalar if
+        # necessary.
         other = Scalar.as_scalar(other)
         # Perform the multiplication.
         out = Scalar(
             self.data * other.data,
             requires_grad=True,
             _prev=OrderedSet([self, other]),
-            _op=Operation.MULTIPLICATION
+            _op=Operation.MULTIPLICATION,
         )
+
         # Define the backward function
         def _backward_fn() -> None:
             self._grad += self._backward * other.data * out._grad
             other._grad += other._backward * self.data * out._grad
+
         out._backward_fn = _backward_fn
         return out
-    
-    def __rmul__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+
+    def __rmul__(self, other: Union[int, float, "Scalar"]) -> "Scalar":
         """Right multiplication operator."""
         # Multiplication is commutative, so we can use the __mul__ method.
         other = Scalar.as_scalar(other)
         return other * self
-    
-    def __truediv__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+
+    def __truediv__(self, other: Union[int, float, "Scalar"]) -> "Scalar":
         """True division operator."""
-        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        # Check that the type of the argument is supported and cast it to a Scalar if
+        # necessary.
         other = Scalar.as_scalar(other)
         # Perform the division
         out = Scalar(
             self.data / other.data,
             requires_grad=True,
             _prev=OrderedSet([self, other]),
-            _op=Operation.DIVISION
+            _op=Operation.DIVISION,
         )
+
         # Define the backward function
         def _backward_fn() -> None:
             self._grad += self._backward * (1.0 / other.data) * out._grad
-            other._grad += other._backward * (-self.data / (other.data**2)) * out._grad
+            other._grad += (
+                other._backward * (-self.data / (other.data**2)) * out._grad
+            )
+
         out._backward_fn = _backward_fn
         return out
-    
-    def __rtruediv__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+
+    def __rtruediv__(self, other: Union[int, float, "Scalar"]) -> "Scalar":
         """Right true division operator."""
         # Division is a non-commutative operator, we cannot re-use the code of the
         # __truediv__ method directly.
@@ -276,17 +311,19 @@ class Scalar:
         out = other / self
         return out
 
-    def __floordiv__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+    def __floordiv__(self, other: Union[int, float, "Scalar"]) -> "Scalar":
         """Floor division operator."""
-        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        # Check that the type of the argument is supported and cast it to a Scalar if
+        # necessary.
         other = Scalar.as_scalar(other)
         # Perform the floor division
         out = Scalar(
             self.data // other.data,
             requires_grad=True,
             _prev=OrderedSet([self, other]),
-            _op=Operation.FLOOR_DIVISION
+            _op=Operation.FLOOR_DIVISION,
         )
+
         # Define the backward function
         # Floor division is somewhat similar to the step function, its gradient
         # is zero everywhere except at the integer values where it is undefined.
@@ -294,68 +331,86 @@ class Scalar:
         def _backward_fn() -> None:
             self._grad += self._backward * 0.0 * out._grad
             other._grad += other._backward * 0.0 * out._grad
+
         out._backward_fn = _backward_fn
         return out
-    
-    def __rfloordiv__(self, other: int | float) -> 'Scalar':
+
+    def __rfloordiv__(self, other: int | float) -> "Scalar":
         """Right floor division operator."""
         # Because gradient is always zero, we can re-use the code of the
         # __floordiv__ method directly.
         other = Scalar.as_scalar(other)
         out = other // self
         return out
-    
-    def __invert__(self) -> 'Scalar':
+
+    def __invert__(self) -> "Scalar":
         """Inverse operator."""
         # Perform the invertion operation
         out = Scalar(
             self.data ** (-1.0),
             requires_grad=True,
             _prev=OrderedSet([self]),
-            _op=Operation.INVERTION
+            _op=Operation.INVERTION,
         )
+
         # Define the backward function
         def _backward_fn() -> None:
-            self._grad += self._backward * ((-1.0)/(self.data**2)) * out._grad
+            self._grad += self._backward * ((-1.0) / (self.data**2)) * out._grad
+
         out._backward_fn = _backward_fn
         return out
-    
-    def __pow__(self, other: Union[int, float, 'Scalar']) -> 'Scalar':
+
+    def __pow__(self, other: Union[int, float, "Scalar"]) -> "Scalar":
         """Exponentiation operator."""
-        # Check that the type of the argument is supported and cast it to a Scalar if necessary.
+        # Check that the type of the argument is supported and cast it to a Scalar if
+        # necessary.
         other = Scalar.as_scalar(other)
         # Perform the exponentiation
         out = Scalar(
-            self.data ** other.data,
+            self.data**other.data,
             requires_grad=True,
             _prev=OrderedSet([self, other]),
-            _op=Operation.EXPONENTIATION
+            _op=Operation.EXPONENTIATION,
         )
+
         # Define the backward function
         def _backward_fn() -> None:
-            self._grad += self._backward * (other.data * ((self.data) ** (other.data - 1.0))) * out._grad
-            other._grad += other._backward * (log(self.data) * (self.data ** other.data)) * out._grad
+            self._grad += (
+                self._backward
+                * (other.data * ((self.data) ** (other.data - 1.0)))
+                * out._grad
+            )
+            other._grad += (
+                other._backward
+                * (log(self.data) * (self.data**other.data))
+                * out._grad
+            )
+
         out._backward_fn = _backward_fn
         return out
-    
-    def __rpow__(self, other: int | float) -> 'Scalar':
+
+    def __rpow__(self, other: int | float) -> "Scalar":
         """Right exponentiation operator."""
         # Exponentiation is a non-commutative operator, we cannot re-use the code of the
         # __pow__ method directly.
         other = Scalar.as_scalar(other)
-        out = other ** self
+        out = other**self
         return out
-        
+
     def __str__(self) -> str:
         """Provide a string representation of the object."""
         label_str = "" if self.label is None else f"label={self.label}, "
         data_str = f"data={self.data:.6f}"
-        req_grad_str = "" if not self.requires_grad else f", requires_grad={self.requires_grad}"
+        req_grad_str = (
+            "" if not self.requires_grad else f", requires_grad={self.requires_grad}"
+        )
         grad_str = "" if not self.requires_grad else f", grad={self._grad:.6f}"
         op_str = "" if self._op is Operation.NONE else f", op={self._op.value}"
         prev_str = "" if self._op is Operation.NONE else f", prev={len(self._prev)}"
-        return f"Scalar({label_str}{data_str}{req_grad_str}{grad_str}{op_str}{prev_str})"
-        
+        return (
+            f"Scalar({label_str}{data_str}{req_grad_str}{grad_str}{op_str}{prev_str})"
+        )
+
     def __repr__(self) -> str:
         """Provide an information-rich string representation of the object."""
         start_str = "Scalar\n"
@@ -364,7 +419,14 @@ class Scalar:
         requires_grad_str = f"{' ':3}requires_grad : {self.requires_grad}\n"
         grad_str = f"{' ':3}grad          : {self._grad:.6f}\n"
         op_str = f"{' ':3}op            : {self._op.value}\n"
-        children_str = ''.join([f"\n{' ':6}{child}" for child in self._prev]) if len(self._prev) > 0 else "None"
+        children_str = (
+            "".join([f"\n{' ':6}{child}" for child in self._prev])
+            if len(self._prev) > 0
+            else "None"
+        )
         prev_str = f"{' ':3}prev          : {children_str}"
 
-        return f"{start_str}{label_str}{data_str}{requires_grad_str}{grad_str}{op_str}{prev_str}"
+        return (
+            f"{start_str}{label_str}{data_str}"
+            f"{requires_grad_str}{grad_str}{op_str}{prev_str}"
+        )
