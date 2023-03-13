@@ -2,6 +2,7 @@
 
 from nanograd.scalar import Scalar
 from nanograd.utils import topological_sort
+from ordered_set import OrderedSet
 
 def test_topological_sort() -> None:
     """Test of the topological sort function."""
@@ -17,4 +18,4 @@ def test_topological_sort() -> None:
     out = x1w1x2w2b.tanh(label='out')
     topo = topological_sort(out)
     
-    assert topo == [x1, w1, x1w1, x2, w2, x2w2, x1w1x2w2, b, x1w1x2w2b, out]
+    assert topo == OrderedSet([x1, w1, x1w1, x2, w2, x2w2, x1w1x2w2, b, x1w1x2w2b, out])
