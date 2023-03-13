@@ -2,6 +2,7 @@
 
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
 
 def test_repr_no_label_op_none() -> None:
     a = Scalar(21)
@@ -34,7 +35,7 @@ def test_repr_with_label_op_none() -> None:
 
 
 def test_repr_no_label_op_identity() -> None:
-    a = Scalar(21, _op=Operation.IDENTITY, _prev={Scalar(21),})
+    a = Scalar(21, _op=Operation.IDENTITY, _prev=OrderedSet([Scalar(21)]))
     repr_str = a.__repr__()
     exp_repr = (
         "Scalar\n"
@@ -50,7 +51,13 @@ def test_repr_no_label_op_identity() -> None:
 
 
 def test_repr_with_label_op_identity_requires_grad() -> None:
-    a = Scalar(21, label="a", requires_grad=True, _op=Operation.IDENTITY, _prev={Scalar(21),})
+    a = Scalar(
+        21,
+        label="a",
+        requires_grad=True,
+        _op=Operation.IDENTITY,
+        _prev=OrderedSet([Scalar(21)])
+    )
     repr_str = a.__repr__()
     exp_repr = (
         "Scalar\n"

@@ -1,8 +1,10 @@
 """Test suit for the __rsub__ method of the Scalar object."""
 
-from pytest import raises
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
+from pytest import raises
+
 
 def test__rsub__int() -> None:
     """Test the __rsub__ method with an int."""
@@ -15,11 +17,10 @@ def test__rsub__int() -> None:
 
     assert z.data == -1
     assert z._op == Operation.SUBTRACTION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([y, x])
     assert x._grad == -1.0
     assert y._grad == 1.0
+
 
 def test__rsub__float() -> None:
     """Test the __rsub__ method with a float."""
@@ -32,9 +33,7 @@ def test__rsub__float() -> None:
 
     assert z.data == -1.0
     assert z._op == Operation.SUBTRACTION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([y, x])
     assert x._grad == -1.0
     assert y._grad == 1.0
 
@@ -49,9 +48,7 @@ def test__rsub__scalar() -> None:
 
     assert z.data == -1.0
     assert z._op == Operation.SUBTRACTION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([y, x])
     assert x._grad == -1.0
     assert y._grad == 1.0
 
@@ -60,4 +57,4 @@ def test__rsub__unsupported() -> None:
     """Test the __rsub__ method with an unsupported type."""
     x = Scalar(2.0, requires_grad=True)
     with raises(TypeError):
-        z = "1.0" - x
+        "1.0" - x

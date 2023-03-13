@@ -3,6 +3,7 @@
 from math import isclose, tanh
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
 
 def test_tanh_with_label() -> None:
     """Test the tanh method of the Scalar object with a label."""
@@ -13,6 +14,6 @@ def test_tanh_with_label() -> None:
 
     assert isclose(y.data, tanh(0.5))
     assert y.label == 'y'
-    assert y._prev == {x}
+    assert y._prev == OrderedSet([x])
     assert y._op == Operation.HYPERBOLIC_TANGENT
     assert isclose(x._grad, 1.0 - y.data**2)

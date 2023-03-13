@@ -1,8 +1,9 @@
 """Test suit for the __sub__ method of the Scalar object."""
 
-from pytest import raises
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
+from pytest import raises
 
 def test__sub__int() -> None:
     """Test the __sub__ method with an int."""
@@ -15,9 +16,7 @@ def test__sub__int() -> None:
 
     assert z.data == -1
     assert z._op == Operation.SUBTRACTION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([x, y])
     assert x._grad == 1.0
     assert y._grad == -1.0
 
@@ -33,9 +32,7 @@ def test__sub__float() -> None:
 
     assert z.data == -1.0
     assert z._op == Operation.SUBTRACTION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([x, y])
     assert x._grad == 1.0
     assert y._grad == -1.0
 
@@ -50,9 +47,7 @@ def test__sub__Scalar() -> None:
 
     assert z.data == -1.0
     assert z._op == Operation.SUBTRACTION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([x, y])
     assert x._grad == 1.0
     assert y._grad == -1.0
 

@@ -3,6 +3,7 @@
 from math import isclose, log
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
 
 def test_pow_with_label() -> None:
     """Test the pow method of the Scalar object with a label."""
@@ -14,7 +15,7 @@ def test_pow_with_label() -> None:
 
     assert z.data == 8.0
     assert z._op == Operation.EXPONENTIATION
-    assert z._prev == {x, y}
+    assert z._prev == OrderedSet([x, y])
     assert z.label == "z"
     assert isclose(x._grad, (x.data**(y.data-1.0)) * y.data)
     assert isclose(y._grad, (x.data**y.data) * log(x.data))

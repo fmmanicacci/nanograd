@@ -3,6 +3,7 @@
 from math import isclose, log
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
 
 def test_exp_with_label() -> None:
     """Test the exp method of the Scalar object with a label."""
@@ -13,6 +14,6 @@ def test_exp_with_label() -> None:
 
     assert y.data == 2.0
     assert y.label == 'y'
-    assert y._prev == {x}
+    assert y._prev == OrderedSet([x])
     assert y._op == Operation.EXPONENTIAL
     assert isclose(x._grad, y.data)

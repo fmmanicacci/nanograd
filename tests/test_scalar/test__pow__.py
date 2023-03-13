@@ -1,9 +1,10 @@
 """Test suite for the __pow__ method of the Scalar object."""
 
 from math import log, isclose
-from pytest import raises
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
+from pytest import raises
 
 def test__pow__int() -> None:
     """Test the __pow__ method with an argument of type int."""
@@ -15,7 +16,7 @@ def test__pow__int() -> None:
     z._backward_fn()
     
     assert isclose(z.data, 9.0)
-    assert z._prev == {x, y}
+    assert z._prev == OrderedSet([x, y])
     assert z._op == Operation.EXPONENTIATION
     assert isclose(x._grad, 6.0)
     assert isclose(y._grad, log(x.data) * (x.data ** y.data))
@@ -31,7 +32,7 @@ def test__pow__float() -> None:
     z._backward_fn()
     
     assert isclose(z.data, 9.0)
-    assert z._prev == {x, y}
+    assert z._prev == OrderedSet([x, y])
     assert z._op == Operation.EXPONENTIATION
     assert isclose(x._grad, 6.0)
     assert isclose(y._grad, log(x.data) * (x.data ** y.data))
@@ -46,7 +47,7 @@ def test__pow__scalar() -> None:
     z._backward_fn()
     
     assert isclose(z.data, 9.0)
-    assert z._prev == {x, y}
+    assert z._prev == OrderedSet([x, y])
     assert z._op == Operation.EXPONENTIATION
     assert isclose(x._grad, 6.0)
     assert isclose(y._grad, log(x.data) * (x.data ** y.data))

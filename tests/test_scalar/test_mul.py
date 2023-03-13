@@ -1,8 +1,9 @@
 """Test suit for the mul method of the Scalar object."""
 
-from pytest import raises
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
+from pytest import raises
 
 def test_mul_int() -> None:
     """Test the mul method with an int as argument."""
@@ -14,9 +15,7 @@ def test_mul_int() -> None:
     z._backward_fn()
     assert z.data == 4.0
     assert z._op == Operation.MULTIPLICATION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([x, y])
     assert x._grad == y.data
     assert y._grad == x.data
 
@@ -31,9 +30,7 @@ def test_mul_float() -> None:
     z._backward_fn()
     assert z.data == 4.0
     assert z._op == Operation.MULTIPLICATION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([x, y])
     assert x._grad == y.data
     assert y._grad == x.data
 
@@ -47,9 +44,7 @@ def test_mul_scalar() -> None:
     z._backward_fn()
     assert z.data == 4.0
     assert z._op == Operation.MULTIPLICATION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([x, y])
     assert x._grad == y.data
     assert y._grad == x.data
 
@@ -71,9 +66,7 @@ def test_mul_with_label() -> None:
     z._backward_fn()
     assert z.data == 4.0
     assert z._op == Operation.MULTIPLICATION
-    assert len(z._prev) == 2
-    assert x in z._prev
-    assert y in z._prev
+    assert z._prev == OrderedSet([x, y])
     assert x._grad == y.data
     assert y._grad == x.data
     assert z.label == "z"

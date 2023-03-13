@@ -1,8 +1,9 @@
 """Test suite for the __rfloordiv__ method of the Scalar object."""
 
-from pytest import raises
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
+from pytest import raises
 
 def test__rfloordiv__int() -> None:
     """Test the __rfloordiv__ method of the Scalar object with an int."""
@@ -15,7 +16,7 @@ def test__rfloordiv__int() -> None:
 
     assert z.data == 1.0
     assert z._op == Operation.FLOOR_DIVISION
-    assert z._prev == {y, x}
+    assert z._prev == OrderedSet([y, x])
     assert x._grad == 0.0
     assert y._grad == 0.0
 
@@ -31,7 +32,7 @@ def test__rfloordiv__float() -> None:
 
     assert z.data == 1.0
     assert z._op == Operation.FLOOR_DIVISION
-    assert z._prev == {y, x}
+    assert z._prev == OrderedSet([y, x])
     assert x._grad == 0.0
     assert y._grad == 0.0
 

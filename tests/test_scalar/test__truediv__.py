@@ -1,9 +1,10 @@
 """Test suit for the method __truediv__ of the Scalar object."""
 
 from math import isclose
-from pytest import raises
 from nanograd.scalar import Scalar
 from nanograd.enums import Operation
+from ordered_set import OrderedSet
+from pytest import raises
 
 def test__truediv__int() -> None:
     """Test the __truediv__ method with an argument of type int."""
@@ -16,7 +17,7 @@ def test__truediv__int() -> None:
     
     assert z.data == 2.0
     assert z._op == Operation.DIVISION
-    assert z._prev == {x, y}
+    assert z._prev == OrderedSet([x, y])
     assert isclose(x._grad, 1 / y.data)
     assert isclose(y._grad, -x.data / (y.data**2))
 
@@ -32,7 +33,7 @@ def test__truediv__float() -> None:
     
     assert z.data == 2.0
     assert z._op == Operation.DIVISION
-    assert z._prev == {x, y}
+    assert z._prev == OrderedSet([x, y])
     assert isclose(x._grad, 1 / y.data)
     assert isclose(y._grad, -x.data / (y.data**2))
 
@@ -47,7 +48,7 @@ def test__truediv__scalar() -> None:
     
     assert z.data == 2.0
     assert z._op == Operation.DIVISION
-    assert z._prev == {x, y}
+    assert z._prev == OrderedSet([x, y])
     assert isclose(x._grad, 1 / y.data)
     assert isclose(y._grad, -x.data / (y.data**2))
     
